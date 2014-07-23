@@ -1,56 +1,15 @@
 /* AXISJ Javascript UI Framework */
 /* http://www.axisj.com, license : http://www.axisj.com/license */
 
-
-	
-		var lang = "un"; //언어 값 받아올 변수. un은 undefined 의 앞 2글자.		 
-		 if (navigator.language!=null) //이 값이 null이 아니면. 크롬이나 파폭이면
-		 {
-		     lang = navigator.language;
-		 } else if (navigator.userLanguage!=null) { //이 값이 null이 아니면. 즉 IE라면
-		     lang = navigator.userLanguage;
-		 } else if (navigator.systemLanguage!=null) { //
-		     lang = navigator.systemLanguage;
-		 } else { 
-		     lang="en";
-		 }
-		 
-		 lang = lang.toLowerCase(); //받아온 값을 소문자로 변경
-		 lang = lang.substring(0, 2); //소문자로 변경한 갚의 앞 2글자만 받아오기
-		 
-		 var startDateTitle = "From";
-		 var endDateTitle = "To";
-		 var yearTitle = ".";
-		 var monthTitle = "";
-		 var amTitle = "AM";
-		 var pmTitle = "PM";
-		 var hourTitle = "Hour";
-		 var minuteTitle = "Minute";
-		 
-		  if (lang=="ko") { // korean
-			  startDateTitle = "시작일시";
-			  endDateTitle = "종료일시";
-			  yearTitle = "년"
-			  monthTitle = "월";			  
-			  amTitle = "오전";
-		      pmTitle = "오후";
-		      hourTitle = "시";
-		      minuteTitle = "분";
-			  
-		  } else if (lang=="ja") { //japanese
-			  startDateTitle = "始作日時";
-			  endDateTitle = "終了日時";
-			  yearTitle = "年"
-			  monthTitle = "月";		      
-			  amTitle = "午前";
-		      pmTitle = "午後";
-		      hourTitle = "時";
-		      minuteTitle = "分";
-		      
-		  } else if (lang=="en") { //english		      
-		  }
-		
-
+var startDateTitle = "From";
+var endDateTitle = "To";
+var yearTitle = "";
+var monthTitle = "";
+var amTitle = "AM";
+var pmTitle = "PM";
+var hourTitle = "Hour";
+var minuteTitle = "Minute";
+var language ="en";
 
 var AXConfig = {
     weekDays: [
@@ -806,7 +765,7 @@ Object.extend(Date.prototype, (function () {
         interval = interval || "d";
         var interval = interval.toLowerCase();
         var DyMilli = ((1000 * 60) * 60) * 24;
-        var aDate = new Date(this.getUTCFullYear(), this.getMonth(), this.getDate(), 12);
+        var aDate = new Date(this.getFullYear(), this.getMonth(), this.getDate(), 12);
         if (interval == "d") {
             aDate.setTime(this.getTime() + (daynum * DyMilli));
         } else if (interval == "m") {
@@ -864,11 +823,11 @@ Object.extend(Date.prototype, (function () {
     function toString(format) {
         if (format == undefined) {
             var sSeper = "-";
-            return this.getUTCFullYear() + sSeper + (this.getMonth() + 1).setDigit(2) + sSeper + this.getDate().setDigit(2);
+            return this.getFullYear() + sSeper + (this.getMonth() + 1).setDigit(2) + sSeper + this.getDate().setDigit(2);
         } else {
             var fStr = format;
             var nY, nM, nD, nH, nMM, nS, nDW;
-            nY = this.getUTCFullYear();
+            nY = this.getFullYear();
             nM = (this.getMonth() + 1).setDigit(2);
             nD = this.getDate().setDigit(2);
             nH = this.getHours().setDigit(2);
@@ -2754,7 +2713,27 @@ var AXCalendar = Class.create(AXJ, {
         this.config.valueFormat = "yyyy-mm-dd";
     },
     init: function () {
-
+        language = this.config.locale;
+		
+		if (language=="ko") { // korean
+			startDateTitle = "시작 일시";
+			endDateTitle = "종료 일시";
+			yearTitle = "년"
+			monthTitle = "월";			  
+			amTitle = "오전";
+			pmTitle = "오후";
+			hourTitle = "시";
+			minuteTitle = "분";
+		} else if (language=="ja") { //japanese
+			startDateTitle = "開始日時";
+			endDateTitle = "終了日時";
+			yearTitle = "年"
+			monthTitle = "月";		      
+			amTitle = "午前";
+			pmTitle = "午後";
+			hourTitle = "時";
+			minuteTitle = "分";
+		} 
     },
     getBasicDate: function () {
         var cfg = this.config;
@@ -2870,8 +2849,8 @@ var AXCalendar = Class.create(AXJ, {
                 var tdClass = [];
                 if (m == (setDate.getMonth() + 1)) tdClass.push("setDate");
                 
-                var printmonth = "";
-                if(lang == "en"){
+                var printmonth = "";                
+                if(language == "en"){
                 	printmonth = numberMonthToStrMonth(m);
                 }else{
                 	printmonth = m;
@@ -3055,17 +3034,10 @@ var AXCalendar = Class.create(AXJ, {
             	//if (apm == pmTitle) hh += 12;
 
             	//axdom("#" + cfg.targetID).val(hh.setDigit(2) + ":" + mi.setDigit(2));
-            	
-            	
-            	
-            	
-            	
-				var mytime = axdom("#inputBasic_AX_" + cfg.targetID + "_AX_hour").val().number().setDigit(2) +
-				":" + axdom("#" + cfg.targetID + "_AX_minute").val().number().setDigit(2);
-				//" " + axdom("#" + cfg.targetID + "_AX_AMPM").val();
-				
-							 
-				 axdom("#" + cfg.targetID + "_AX_timeDisplay").text(mytime);
+
+				//var mytime = axdom("#inputBasic_AX_" + cfg.targetID + "_AX_hour").val().number().setDigit(2) +	":" + axdom("#" + cfg.targetID + "_AX_minute").val().number().setDigit(2);
+				//" " + axdom("#" + cfg.targetID + "_AX_AMPM").val();			 
+				 //axdom("#" + cfg.targetID + "_AX_timeDisplay").text(mytime);
 							
 				 timePageChange(objID, objVal);
 				
@@ -3103,14 +3075,11 @@ var AXCalendar = Class.create(AXJ, {
 				var hh = axdom("#inputBasic_AX_" + cfg.targetID + "_AX_hour").val().number();
            		var mi = axdom("#" + cfg.targetID + "_AX_minute").val().number();
             	//if (apm == pmTitle) hh += 12;
-            	axdom("#" + cfg.targetID).val(hh.setDigit(2) + ":" + mi.setDigit(2));
-
-				var mytime = axdom("#" + cfg.targetID + "_AX_hour").val().number().setDigit(2) +
-				":" + axdom("#" + cfg.targetID + "_AX_minute").val().number().setDigit(2);
+            	//axdom("#" + cfg.targetID).val(hh.setDigit(2) + ":" + mi.setDigit(2));
+				//var mytime = axdom("#" + cfg.targetID + "_AX_hour").val().number().setDigit(2) +":" + axdom("#" + cfg.targetID + "_AX_minute").val().number().setDigit(2);
 				//" " + axdom("#" + cfg.targetID + "_AX_AMPM").val();
 				//axdom("#" + cfg.targetID + "_AX_timeInput").val(mytime);
-
-				 axdom("#" + cfg.targetID + "_AX_timeDisplay").text(mytime);				 
+				 //axdom("#" + cfg.targetID + "_AX_timeDisplay").text(mytime);				 
 				 timePageChange(objID, objVal);
             }
         });
@@ -5417,31 +5386,30 @@ axdom.fn.setCaret = function (pos) {
     }
 };
 
-
 function numberMonthToStrMonth(numberMonth){
 	if(numberMonth == 1){
-		return "Jan.";
+		return "JAN";
 	}else if(numberMonth == 2){
-		return "Feb.";
+		return "FEB";
 	}else if(numberMonth == 3){
-		return "Mar.";
+		return "MAR";
 	}else if(numberMonth == 4){
-		return "Apr.";
+		return "APR";
 	}else if(numberMonth == 5){
-		return "May.";
+		return "MAY";
 	}else if(numberMonth == 6){
-		return "Jun.";
+		return "JUN";
 	}else if(numberMonth == 7){
-		return "Jul.";
+		return "JUL";
 	}else if(numberMonth == 8){
-		return "Aug.";
+		return "AUG";
 	}else if(numberMonth == 9){
-		return "Sep.";
+		return "SEP";
 	}else if(numberMonth == 10){
-		return "Oct.";
+		return "OCT";
 	}else if(numberMonth == 11){
-		return "Nov.";
+		return "NOV";
 	}else if(numberMonth == 12){
-		return "Dec.";
+		return "DEC";
 	}
 }
