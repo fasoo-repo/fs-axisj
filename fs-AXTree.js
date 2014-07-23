@@ -2578,19 +2578,19 @@ var AXTree = Class.create(AXJ, {
 	gridBodyOver: function (event) {
 		var cfg = this.config;
 		if (this.overedItemIndex) {
-			this.body.find(".gridBodyTr_" + this.overedItemIndex).removeClass("hover");
+			//this.body.find(".gridBodyTr_" + this.overedItemIndex).removeClass("hover"); //(QA:0032522) [IE8] iframe 스크롤과 body 스크롤이 동시에 움직이는 현상의 원인
 		}
 		var itemIndex = (event.target.id).split(/_AX_/g).last();
 		
 		if (itemIndex != "" && this.list[itemIndex].type != 'root') { //root 선택 안되게 막기 (대상선택)
-			this.body.find(".gridBodyTr_" + itemIndex).addClass("hover");
+			//this.body.find(".gridBodyTr_" + itemIndex).addClass("hover");				//(QA:0032522) [IE8] iframe 스크롤과 body 스크롤이 동시에 움직이는 현상의 원인
 			this.overedItemIndex = itemIndex;
 		}
 	},
 	gridBodyOut: function (event) {
 		var cfg = this.config;
 		if (this.overedItemIndex) {
-			this.body.find(".gridBodyTr_" + this.overedItemIndex).removeClass("hover");
+			//this.body.find(".gridBodyTr_" + this.overedItemIndex).removeClass("hover"); //(QA:0032522) [IE8] iframe 스크롤과 body 스크롤이 동시에 움직이는 현상의 원인
 		}
 	},
 	gridBodyClick: function(event){
