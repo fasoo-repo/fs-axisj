@@ -108,7 +108,6 @@ var AXInputConverter = Class.create(AXJ, {
 	},
 	bind: function (obj) {
 		var cfg = this.config;
-
 		if (!obj.id) {
 			trace("bind 대상 ID가 없어 bind 처리할 수 없습니다.");
 			return;
@@ -128,7 +127,7 @@ var AXInputConverter = Class.create(AXJ, {
 				return false;
 			}
 		});
-
+		
 		if (obj.href == undefined) obj.href = cfg.href;
 
 		if (objSeq == null) {
@@ -138,9 +137,15 @@ var AXInputConverter = Class.create(AXJ, {
 			this.objects[objSeq].isDel = undefined;
 			this.objects[objSeq].config = obj;
 		}
-
+		
+		if(this.objects[objSeq].config.locale  != undefined){
+			this.objects[objSeq].config.locale = this.objects[objSeq].config.locale.substring(0,2);
+			if(this.objects[objSeq].config.locale != 'ko' && this.objects[objSeq].config.locale != 'ja'){
+				this.objects[objSeq].config.locale = 'en';
+			}
+		}
+		
 		this.appendAnchor(objID, objSeq, obj.bindType);
-
 		if (obj.bindType == "placeHolder") {
 			this.bindPlaceHolder(objID, objSeq);
 		} else if (obj.bindType == "search") {
@@ -2288,20 +2293,15 @@ var AXInputConverter = Class.create(AXJ, {
 		var myYear = myDate.getFullYear();
 		var myMonth = (myDate.getMonth() + 1).setDigit(2);
 		
-		 var printmonth = "";
-         if(lang == "en"){
-         	printmonth = numberMonthToStrMonth(myMonth);
-         }else{
-         	printmonth = myMonth;
-         }
-		
-		
 		var po = [];
 		po.push("<div id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandBox\" class=\"" + cfg.bindDateExpandBoxClassName + "\" style=\"z-index:5100;\">");
 		po.push("	<div>");
 		po.push("		<div class=\"dateControlBox\">");
 		po.push("			<a " + obj.config.href + " class=\"yearbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlYear\">" + myYear + yearTitle + "</a>");
-		po.push("			<a " + obj.config.href + " class=\"monthbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth\">"  + printmonth + monthTitle + "</a>");
+		if(obj.config.locale == "en"){
+			po.push("			<a class=\"dashText\">"  + "-" + "</a>");
+		}
+		po.push("			<a " + obj.config.href + " class=\"monthbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth\">"  + myMonth + monthTitle + "</a>");
 		po.push("			<a " + obj.config.href + " class=\"prevbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandPrev\">P</a>");
 		po.push("			<a " + obj.config.href + " class=\"nextbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandNext\">N</a>");
 		po.push("		</div>");
@@ -2326,7 +2326,8 @@ var AXInputConverter = Class.create(AXJ, {
 		obj.mycalendar.setConfig({
 			targetID: cfg.targetID + "_AX_" + objID + "_AX_displayBox",
 			basicDate: myDate,
-			href: obj.config.href
+			href: obj.config.href,
+			locale: obj.config.locale
 		});
 		if (obj.config.expandTime) { //시간 선택 기능 확장시
 			obj.nDate = myDate;
@@ -2343,7 +2344,8 @@ var AXInputConverter = Class.create(AXJ, {
 			obj.mycalendartime = new AXCalendar();
 			obj.mycalendartime.setConfig({
 				targetID: cfg.targetID + "_AX_" + objID + "_AX_displayTimeBox",
-				onChange: obj.mycalendartimeChange
+				onChange: obj.mycalendartimeChange,
+				locale: obj.config.locale
 			});
 			
 			
@@ -2576,7 +2578,8 @@ var AXInputConverter = Class.create(AXJ, {
 		obj.mycalendar.setConfig({
 			targetID: cfg.targetID + "_AX_" + objID + "_AX_displayBox",
 			basicDate: myDate,
-			href: obj.config.href
+			href: obj.config.href,
+			locale: obj.config.locale
 		});
 		if (obj.config.expandTime) { //시간 선택 기능 확장시
 			obj.nDate = myDate;
@@ -2588,7 +2591,8 @@ var AXInputConverter = Class.create(AXJ, {
 			obj.mycalendartime = new AXCalendar();
 			obj.mycalendartime.setConfig({
 				targetID: cfg.targetID + "_AX_" + objID + "_AX_displayTimeBox",
-				onChange: obj.mycalendartimeChange
+				onChange: obj.mycalendartimeChange,
+				locale: obj.config.locale
 			});
 			//var apm = amTitle;
 			var myTimes = myDate.print("hh:mi").split(":");
@@ -3133,8 +3137,7 @@ var AXInputConverter = Class.create(AXJ, {
 		axdom("#" + removeAnchorId).remove();
 
 	},
-	bindDateTimeChange: function (objID, objSeq, myTime) {
-		alert("asdf");
+	bindDateTimeChange: function (objID, objSeq, myTime) {		
 		var obj = this.objects[objSeq];
 		var cfg = this.config;
 		var separator = (obj.config.separator) ? obj.config.separator : "-";
@@ -3279,16 +3282,9 @@ var AXInputConverter = Class.create(AXJ, {
 			obj.mycalendar.printDayPage(setDate);
 			var myYear = setDate.getFullYear();
 			var myMonth = (setDate.getMonth() + 1).setDigit(2);
-			
-			var printmonth = "";
-	         if(lang == "en"){
-	         	printmonth = numberMonthToStrMonth(myMonth);
-	         }else{
-	         	printmonth = myMonth;
-	         }
-			
+						
 			axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlYear").html(myYear + yearTitle);
-			axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth").html(printmonth);
+			axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth").html(myMonth);
 		}
 
 		if (obj.config.selectType == "y") {
@@ -3306,8 +3302,6 @@ var AXInputConverter = Class.create(AXJ, {
 	},
 	/* twinDate ~~~~~~~~~~~~~~~~~ */
 	bindTwinDate: function (objID, objSeq, option) {
-	
-		
 		var cfg = this.config;
 		var obj = this.objects[objSeq];
 		//var h = axdom("#" + cfg.targetID + "_AX_" + objID).data("height");
@@ -3323,6 +3317,15 @@ var AXInputConverter = Class.create(AXJ, {
 		axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_dateHandle").unbind("click.AXInput").bind("click.AXInput", function (event) {
 			bindDateExpand(objID, objSeq, true, event);
 		});
+		
+		//Tab과 Space를 이용하여 달력을 열 수 있도록 하기위한 코드 추가
+		axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_dateHandle").unbind("keyup.AXInput").bind("keyup.AXInput", function (event) {
+			if(event.keyCode == AXUtil.Event.KEY_SPACE){
+				bindDateExpand(objID, objSeq, true, event);
+			}
+		});		
+		/**/
+		
 		axdom("#" + objID).unbind("click.AXInput").bind("focus.AXInput", function (event) {
 			axdom("#" + objID).select();
 			/*
@@ -3455,19 +3458,23 @@ var AXInputConverter = Class.create(AXJ, {
 		var myYear2 = myDate2.getFullYear();
 		var myMonth1 = (myDate1.getMonth() + 1).setDigit(2);
 		var myMonth2 = (myDate2.getMonth() + 1).setDigit(2);		
-
-		var printmonth1 = "";
-		var printmonth2 = "";
-        if(lang == "en"){
-        	printmonth1 = numberMonthToStrMonth(myMonth1);
-        	printmonth2 = numberMonthToStrMonth(myMonth2);
-        }else{
-        	printmonth1 = myMonth1;
-        	printmonth2 = myMonth2;
-        }
-			
 		
+     // AXCalendar display
+		obj.nDate1 = myDate1;
+		obj.mycalendar1 = new AXCalendar();
+		obj.mycalendar1.setConfig({
+			targetID: cfg.targetID + "_AX_" + objID + "_AX_displayBox1",
+			basicDate: myDate1,
+			locale: obj.config.locale
+		});
 		
+		obj.nDate2 = myDate2;
+		obj.mycalendar2 = new AXCalendar();
+		obj.mycalendar2.setConfig({
+			targetID: cfg.targetID + "_AX_" + objID + "_AX_displayBox2",
+			basicDate: myDate2,
+			locale: obj.config.locale
+		});
 				
 		var po = [];
 		po.push("<div id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandBox\" class=\"" + cfg.bindTwinDateExpandBoxClassName + "\" style=\"z-index:5100;\">");
@@ -3477,10 +3484,13 @@ var AXInputConverter = Class.create(AXJ, {
 		po.push("				<tr>");
 		po.push("					<td style=\"padding-right:8px;\">");																							/* Edit   - 3px to 8px*/ 
 		//po.push("					<div class=\"dateTypeName\">" + startTitle + "</div>");
-		po.push("					<div class=\"dateTypeName\" style = \" font-size:14px; font-weight:bold;\">" + startDateTitle + "</div>"); /* add - font-Weight:hold */
+		po.push("					<div class=\"dateTypeName\" style = \" font-size:13px; font-weight:bold;\">" + startDateTitle + "</div>"); /* add - font-Weight:hold */
 		po.push("					<div class=\"dateControlBox\">");
 		po.push("						<a " + obj.config.href + " class=\"yearbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlYear1\">" + myYear1 + yearTitle +"</a>");
-		po.push("						<a " + obj.config.href + " class=\"monthbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth1\">" +  printmonth1 + monthTitle +"</a>");
+		if(obj.config.locale == "en"){
+			po.push("			<a class=\"dashText\">"  + "-" + "</a>");
+		}
+		po.push("						<a " + obj.config.href + " class=\"monthbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth1\">" +  myMonth1 + monthTitle +"</a>");
 		po.push("						<a " + obj.config.href + " class=\"prevbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandPrev1\">P</a>");
 		po.push("						<a " + obj.config.href + " class=\"nextbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandNext1\">N</a>");
 		po.push("					</div>");
@@ -3490,10 +3500,13 @@ var AXInputConverter = Class.create(AXJ, {
 		}
 		po.push("					</td>");
 		po.push("					<td style=\"padding-left:8px;\">");																								/* Edit   - 3px to 8px*/ 
-		po.push("					<div class=\"dateTypeName\" style = \" font-size:14px; font-weight:bold;\">" + endDateTitle +"</div>"); /* add - font-Weight:hold */
+		po.push("					<div class=\"dateTypeName\" style = \" font-size:13px; font-weight:bold;\">" + endDateTitle +"</div>"); /* add - font-Weight:hold */
 		po.push("					<div class=\"dateControlBox\">");
 		po.push("						<a " + obj.config.href + " class=\"yearbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlYear2\">" + myYear2 + yearTitle +"</a>");
-		po.push("						<a " + obj.config.href + " class=\"monthbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth2\">" +  printmonth2 +  monthTitle  +"</a>");
+		if(obj.config.locale == "en"){
+			po.push("			<a class=\"dashText\">"  + "-" + "</a>");
+		}
+		po.push("						<a " + obj.config.href + " class=\"monthbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth2\">" +  myMonth2 +  monthTitle  +"</a>");
 		po.push("						<a " + obj.config.href + " class=\"prevbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandPrev2\">P</a>");
 		po.push("						<a " + obj.config.href + " class=\"nextbutton\" id=\"" + cfg.targetID + "_AX_" + objID + "_AX_expandNext2\">N</a>");
 		po.push("					</div>");
@@ -3513,31 +3526,10 @@ var AXInputConverter = Class.create(AXJ, {
 		po.push("	</div>");
 		po.push("</div>");
 		axdom(document.body).append(po.join('')); // bindDateExpandBox append
-		//axdom("#"+cfg.targetID + "_AX_" + objID+"_AX_Handle").addClass("on");
-
-		
-		
-		// AXCalendar display
-		obj.nDate1 = myDate1;
-		obj.mycalendar1 = new AXCalendar();
-		obj.mycalendar1.setConfig({
-			targetID: cfg.targetID + "_AX_" + objID + "_AX_displayBox1",
-			basicDate: myDate1
-		});
-		
-		
-
-		obj.nDate2 = myDate2;
-		obj.mycalendar2 = new AXCalendar();
-		obj.mycalendar2.setConfig({
-			targetID: cfg.targetID + "_AX_" + objID + "_AX_displayBox2",
-			basicDate: myDate2
-		});
-		
+		//axdom("#"+cfg.targetID + "_AX_" + objID+"_AX_Handle").addClass("on");		
 
 		if (obj.config.expandTime) { //시간 선택 기능 확장시
-			obj.nDate1 = myDate1;
-			
+			obj.nDate1 = myDate1;			
 																									// Edit   - 시간변경 실시간 반영 삭제 (기간달력 중 시작시간)
 			var mycalendartimeChange1 = this.bindTwinDateTimeChange.bind(this);
 			obj.mycalendartimeChange1 = function (myTime) {
@@ -3547,11 +3539,9 @@ var AXInputConverter = Class.create(AXJ, {
 			obj.mycalendartime1 = new AXCalendar();
 			obj.mycalendartime1.setConfig({
 				targetID: cfg.targetID + "_AX_" + objID + "_AX_displayTimeBox1",
-				onChange: obj.mycalendartimeChange1
+				onChange: obj.mycalendartimeChange1,
+				locale: obj.config.locale
 			});
-			
-
-
 			
 			//var apm = amTitle;
 			var myTimes = myDate1.print("hh:mi").split(":");
@@ -3583,7 +3573,8 @@ var AXInputConverter = Class.create(AXJ, {
 			obj.mycalendartime2 = new AXCalendar();
 			obj.mycalendartime2.setConfig({
 				targetID: cfg.targetID + "_AX_" + objID + "_AX_displayTimeBox2",
-				onChange: obj.mycalendartimeChange2
+				onChange: obj.mycalendartimeChange2,
+				locale: obj.config.locale
 			});
 			//var apm = amTitle;
 			var myTimes = myDate2.print("hh:mi").split(":");
@@ -3710,10 +3701,15 @@ var AXInputConverter = Class.create(AXJ, {
 		}
 
 		axdom(document).unbind("click.AXInput").bind("click.AXInput", obj.documentclickEvent);
-		axdom("#" + objID).unbind("keydown.AXInput").bind("keydown.AXInput", obj.inputKeyup);
+		//axdom("#" + objID).unbind("keydown.AXInput").bind("keydown.AXInput", obj.inputKeyup);		//space로 달력 조작 하기위한 주석처리
+		axdom(document).unbind("keyup.AXInput").bind("keyup.AXInput", function (event) {			//space로 달력 조작 하기위한 코드 삽입
+			if(event.keyCode == AXUtil.Event.KEY_SPACE){
+				bindTwinDateExpandBoxClick(objID, objSeq, event);
+			}
+		});
+		
 		var bindTwinDateExpandClose = this.bindTwinDateExpandClose.bind(this);
-		axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_closeButton").unbind("click.AXInput").bind("click.AXInput", function (event) {
-			
+		axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_closeButton").unbind("click.AXInput").bind("click.AXInput", function (event) {		
 			bindTwinDateExpandClose(objID, objSeq, event);
 		});
 
@@ -4324,29 +4320,16 @@ var AXInputConverter = Class.create(AXJ, {
 				var myYear = setDate.getFullYear();
 				var myMonth = (setDate.getMonth() + 1).setDigit(2);
 				
-				var printmonth = "";
-				
-		        if(lang == "en"){
-		        	printmonth = numberMonthToStrMonth(myMonth);
-		        }else{
-		        	printmonth = myMonth;		        	
-		        }				
 				axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlYear1").html(myYear + yearTitle);
-				axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth1").html(printmonth + monthTitle);				
+				axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth1").html(myMonth + monthTitle);				
 			} else {
 				obj.nDate2 = setDate;
 				obj.mycalendar2.printDayPage(setDate);
 				var myYear = setDate.getFullYear();
 				var myMonth = (setDate.getMonth() + 1).setDigit(2);
 				
-				 if(lang == "en"){
-			        	printmonth = numberMonthToStrMonth(myMonth);
-			        }else{
-			        	printmonth = myMonth;		        	
-			        }	
-				
 				axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlYear2").html(myYear + yearTitle);
-				axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth2").html(printmonth + monthTitle);
+				axdom("#" + cfg.targetID + "_AX_" + objID + "_AX_controlMonth2").html(myMonth + monthTitle);
 			}
 		}
 		if (obj.config.expandTime) {
